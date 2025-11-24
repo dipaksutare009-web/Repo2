@@ -1,0 +1,37 @@
+name: Sync Foundation Folder from Repo1
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 minutes
+  workflow_dispatch:          # manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0     # required for subtree
+
+      - name: Configure Git
+        run: |
+          git config user.name "dipaksutare009-web"
+          git config user.email "dipaksutare009@gmail.com"
+
+      - name: Add Repo1 as remote
+        run: |
+          git remote add repo1 https://x-access-token:${{ secrets.REPO1_ACCESS_TOKEN }}@github.com/dipak0008/Repo1.git
+          git fetch repo1
+
+      - name: Pull ONLY Foundation folder using subtree
+        run: |
+          git subtree pull \
+            --prefix=Foundation \
+            repo1 main \
+            --squash
+
+      - name: Push to Repo2
+        run: |
+          git push origin main
