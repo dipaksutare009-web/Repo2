@@ -1,0 +1,56 @@
+:root{
+  --bg: #0f172a;
+  --card: #0b1220;
+  --accent: #06b6d4;
+  --muted: #94a3b8;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background: linear-gradient(180deg,#071033 0%, #071428 100%);
+  color:#e6eef8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.container{
+  width:100%;
+  max-width:420px;
+  background: rgba(255,255,255,0.03);
+  border-radius:12px;
+  padding:20px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+  text-align:center;
+}
+h1{margin:0 0 12px;font-size:24px}
+.status{margin-bottom:12px;color:var(--muted)}
+.board{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.cell{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  height:100px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  cursor:pointer;
+  border-radius:8px;
+  user-select:none;
+  transition:transform .06s ease, background .12s ease;
+}
+.cell:hover{transform:translateY(-3px)}
+.cell[aria-disabled="true"]{cursor:default;opacity:0.9}
+.cell.winner{background:linear-gradient(90deg, rgba(6,182,212,0.12), rgba(34,197,94,0.08)); box-shadow:0 4px 14px rgba(6,182,212,0.08) inset}
+.controls{margin-top:14px}
+#reset{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent);padding:8px 14px;border-radius:8px;cursor:pointer}
+.credit{margin-top:12px;font-size:12px;color:var(--muted)}
+
+@media (max-width:420px){
+  .cell{height:80px;font-size:28px}
+}
