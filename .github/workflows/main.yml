@@ -1,0 +1,1 @@
+git ls-remote https://x-access-token:<PAT>@github.com/dipak0008/Repo1.git
