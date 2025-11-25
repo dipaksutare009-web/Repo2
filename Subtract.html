@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Subtractor</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding: 20px; max-width: 520px; margin: auto; }
+    label { display: inline-block; margin-right: 8px; }
+    input[type="number"] { width: 120px; padding: 6px; margin-right: 8px; }
+    button { padding: 6px 10px; }
+    #result { margin-top: 12px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Simple Subtractor</h1>
+
+  <div>
+    <label for="a">Number 1</label>
+    <input id="a" type="number" step="any" placeholder="0" />
+
+    <label for="b">Number 2</label>
+    <input id="b" type="number" step="any" placeholder="0" />
+
+    <button id="subtractBtn">Subtract</button>
+  </div>
+
+  <div id="result" aria-live="polite"></div>
+
+  <script>
+    function subtractNumbers() {
+      const aVal = document.getElementById('a').value;
+      const bVal = document.getElementById('b').value;
+      const a = parseFloat(aVal);
+      const b = parseFloat(bVal);
+
+      if (Number.isNaN(a) || Number.isNaN(b)) {
+        document.getElementById('result').textContent = 'Please enter two valid numbers.';
+        return;
+      }
+
+      const diff = a - b;
+      document.getElementById('result').textContent = `${a} - ${b} = ${diff}`;
+    }
+
+    document.getElementById('subtractBtn').addEventListener('click', subtractNumbers);
+
+    // allow Enter key on inputs to trigger subtraction
+    ['a','b'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') subtractNumbers();
+      });
+    });
+  </script>
+</body>
+</html>
