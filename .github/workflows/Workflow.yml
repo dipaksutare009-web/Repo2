@@ -2,29 +2,50 @@ name: Auto Sync Sub Folder from Repo1
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # runs every 10 minutes
+    - cron: "*/10 * * * *"   # every 10 minutes (adjust as needed)
   workflow_dispatch:         # manual trigger
+
+env:
+  SRC_REPO: dipak0008/Repo1
+  SRC_BRANCH: Foundation-only
+  DEST_BRANCH: main
+  SUB_PREFIX: Sub
+
+permissions:
+  contents: write   # required to push using GITHUB_TOKEN; we still use PAT for cross-repo auth
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out Repo2
+      - name: Checkout Repo2 (use PAT)
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.REPO2_SYNC_TOKEN }}
+          fetch-depth: 0        # full history (safer for subtree operations)
+          persist-credentials: true
 
-      - name: Add Repo1 remote
+      - name: Configure git user
         run: |
-          git remote add repo1 https://github.com/dipak0008/Repo1.git
-          git fetch repo1 Foundation-only
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Repo1 remote (use PAT for authentication)
+        run: |
+          # Add remote that uses the PAT for HTTP auth (safe inside Actions)
+          git remote add repo1 https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ env.SRC_REPO }}.git
+          git fetch repo1 ${{ env.SRC_BRANCH }}
 
       - name: Pull subtree from Repo1/Sub into Repo2
         run: |
-          # Sync only "Sub" folder from Repo1/Foundation-only
-          git subtree pull --prefix=Sub repo1 Foundation-only --squash
+          # Ensure prefix exists (optional) and pull only the Sub folder from repo1 branch
+          git subtree pull --prefix=${{ env.SUB_PREFIX }} repo1 ${{ env.SRC_BRANCH }} --squash || \
+            (echo "Subtree pull failed — attempting subtree add instead" && \
+             git subtree add --prefix=${{ env.SUB_PREFIX }} repo1 ${{ env.SRC_BRANCH }} --squash)
 
-      - name: Push changes back to Repo2
+      - name: Push changes back to Repo2 using PAT
         run: |
-          git push origin main
+          # Push using the PAT-embedded URL to avoid credential prompts
+          git remote set-url origin https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ github.repository }}.git
+          git push origin HEAD:${{ env.DEST_BRANCH }}
