@@ -30,6 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git ls-remote https://x-access-token:<PAT>@github.com/dipak0008/Repo1.git
 
       - name: Add Repo1 remote (use PAT for authentication)
         run: |
