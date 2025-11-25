@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout Repo2 (use PAT)
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.REPO2_SYNC_TOKEN }}
           fetch-depth: 0        # full history (safer for subtree operations)
