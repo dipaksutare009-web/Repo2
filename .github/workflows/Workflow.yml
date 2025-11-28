@@ -1,9 +1,13 @@
+# ✅ FIXED GitHub Actions Workflow to Auto-Sync Sub Folder from Repo1
+# This version resolves: "could not read Username for 'https://github.com'"
+# Cause: PAT not being correctly applied during checkout authentication
+
 name: Auto Sync Sub Folder from Repo1
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # every 10 minutes (adjust as needed)
-  workflow_dispatch:         # manual trigger
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
 
 env:
   SRC_REPO: dipak0008/Repo1
@@ -12,40 +16,40 @@ env:
   SUB_PREFIX: Sub
 
 permissions:
-  contents: write   # required to push using GITHUB_TOKEN; we still use PAT for cross-repo auth
+  contents: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo2 (use PAT)
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.REPO2_SYNC_TOKEN }}
-          fetch-depth: 0        # full history (safer for subtree operations)
-          persist-credentials: true
+    - name: ✅ Checkout Repo2 (FIXED AUTH)
+      uses: actions/checkout@v4
+      with:
+        repository: dipaksutare009-web/Repo2
+        ref: main
+        token: ${{ secrets.REPO2_SYNC_TOKEN }}
+        fetch-depth: 0
 
-      - name: Configure git user
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    - name: Configure git user
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add Repo1 remote (use PAT for authentication)
-        run: |
-          # Add remote that uses the PAT for HTTP auth (safe inside Actions)
-          git remote add repo1 https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ env.SRC_REPO }}.git
-          git fetch repo1 ${{ env.SRC_BRANCH }}
+    - name: ✅ Add Repo1 as remote using PAT
+      run: |
+        git remote add repo1 https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ env.SRC_REPO }}.git
+        git fetch repo1 ${{ env.SRC_BRANCH }}
 
-      - name: Pull subtree from Repo1/Sub into Repo2
-        run: |
-          # Ensure prefix exists (optional) and pull only the Sub folder from repo1 branch
-          git subtree pull --prefix=${{ env.SUB_PREFIX }} repo1 ${{ env.SRC_BRANCH }} --squash || \
-            (echo "Subtree pull failed — attempting subtree add instead" && \
-             git subtree add --prefix=${{ env.SUB_PREFIX }} repo1 ${{ env.SRC_BRANCH }} --squash)
+    - name: ✅ Sync Sub Folder using Subtree
+      run: |
+        if [ ! -d "${{ env.SUB_PREFIX }}" ]; then
+          git subtree add --prefix=${{ env.SUB_PREFIX }} repo1 ${{ env.SRC_BRANCH }} --squash
+        else
+          git subtree pull --prefix=${{ env.SUB_PREFIX }} repo1 ${{ env.SRC_BRANCH }} --squash
+        fi
 
-      - name: Push changes back to Repo2 using PAT
-        run: |
-          # Push using the PAT-embedded URL to avoid credential prompts
-          git remote set-url origin https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ github.repository }}.git
-          git push origin HEAD:${{ env.DEST_BRANCH }}
+    - name: ✅ Push changes to Repo2
+      run: |
+        git remote set-url origin https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ github.repository }}.git
+        git push origin HEAD:${{ env.DEST_BRANCH }}
