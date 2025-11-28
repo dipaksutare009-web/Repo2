@@ -51,5 +51,5 @@ jobs:
 
     - name: ✅ Push changes to Repo2
       run: |
-        git remote set-url origin https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/${{ github.repository }}.git
+        git remote set-url origin https://x-access-token:${{ secrets.REPO2_SYNC_TOKEN }}@github.com/dipaksutare009-web/Repo2.git
         git push origin HEAD:${{ env.DEST_BRANCH }}
